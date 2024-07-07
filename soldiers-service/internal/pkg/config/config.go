@@ -2,7 +2,7 @@ package config
 
 import (
 	"os"
-	"strings"
+	"time"
 )
 
 type Config struct {
@@ -14,6 +14,10 @@ type Config struct {
 	Context struct {
 		Timeout string
 	}
+	Token struct {
+		Secret    string
+		AccessTTL time.Duration
+	}
 
 	DB struct {
 		Host     string
@@ -23,55 +27,37 @@ type Config struct {
 		Password string
 		SslMode  string
 	}
-	Mongodb struct {
-		Host     string
-		Port     string
-		Database string
-	}
+}
 
-	OTLPCollector struct {
-		Host string
-		Port string
-	}
-
-	Kafka struct {
-		Address []string
-		Topic   struct {
-			Client string
-		}
-	}
+func Token() string {
+	c := Config{}
+	c.Token.Secret = getEnv("TOKEN_SECRET", "token_secret")
+	return c.Token.Secret
 }
 
 func New() *Config {
 	var config Config
 
-	// general configuration
+
 	config.APP = getEnv("APP", "app")
 	config.Environment = getEnv("ENVIRONMENT", "develop")
-	config.LogLevel = getEnv("LOG_LEVEL", "debug")
-	config.RPCPort = getEnv("RPC_PORT", ":4040")
+	config.LogLevel = getEnv("LOG_LEVEL", "local")
+	config.RPCPort = getEnv("RPC_PORT", ":9000")
 	config.Context.Timeout = getEnv("CONTEXT_TIMEOUT", "30s")
 
-	// db configuration
-	config.DB.Host = getEnv("POSTGRES_HOST", "db")
+	config.DB.Host = getEnv("POSTGRES_HOST", "localhost")
 	config.DB.Port = getEnv("POSTGRES_PORT", "5432")
 	config.DB.User = getEnv("POSTGRES_USER", "postgres")
-	config.DB.Password = getEnv("POSTGRES_PASSWORD", "123")
+	config.DB.Password = getEnv("POSTGRES_PASSWORD", "+_+diyor2005+_+")
 	config.DB.SslMode = getEnv("POSTGRES_SSLMODE", "disable")
-	config.DB.Name = getEnv("POSTGRES_DATABASE", "ekzamen5_db")
+	config.DB.Name = getEnv("POSTGRES_DATABASE", "solders_service")
 
-	// mongodb configuration
-	config.Mongodb.Host = getEnv("POSTGRES_HOST", "mongodb")
-	config.Mongodb.Port = getEnv("POSTGRES_PORT", "27017")
-	config.Mongodb.Database = getEnv("POSTGRES_DATABASE", "ekzamen5_db")
-
-	// otlp collector configuration
-	config.OTLPCollector.Host = getEnv("OTLP_COLLECTOR_HOST", "otel-collector")
-	config.OTLPCollector.Port = getEnv("OTLP_COLLECTOR_PORT", ":4317")
-
-	// kafka configuration
-	config.Kafka.Address = strings.Split(getEnv("KAFKA_ADDRESS", "kafka:29092"), ",")
-	config.Kafka.Topic.Client = getEnv("KAFKA_TOPIC_CLIENT_CREATE", "jobs.created")
+	config.Token.Secret = getEnv("TOKEN_SECRET", "D1YORTOP4EEK")
+	accessTTl, err := time.ParseDuration(getEnv("TOKEN_ACCESS_TTL", "1h"))
+	if err != nil {
+		return nil
+	}
+	config.Token.AccessTTL = accessTTl
 
 	return &config
 }
