@@ -1,0 +1,4 @@
+syntax ="proto3";
+
+
+option  go_package  = "abdulloh.storehouses.v1;storehouses1";
