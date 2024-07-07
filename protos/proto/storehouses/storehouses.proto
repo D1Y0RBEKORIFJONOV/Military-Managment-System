@@ -2,3 +2,93 @@ syntax ="proto3";
 
 
 option  go_package  = "abdulloh.storehouses.v1;storehouses1";
+
+
+service StorehouseService {
+    rpc CreateStorehouse(CreateStorehouseReq) returns (Storehouse);
+    rpc GetStorehouse(GetStorehouseReq) returns (Storehouse);
+    rpc GetAllStorehouse(GetAllStorehouseReq) returns (GetAllStorehouseRes);
+    rpc UpdateStorehouse(UpdateStorehouseReq) returns (Storehouse);
+}
+
+service ResourceTypeService {
+    rpc CreateResourceType(CreateResourceTypeReq) returns (ResourceType);
+    rpc GetResourceType(GetResourceTypeReq) returns (ResourceType);
+    rpc GetAllResourceType(GetAllResourceTypeReq) returns (GetAllResourceTypeRes);
+    rpc UpdateResourceType(UpdateResourceTypeReq) returns (ResourceType);
+    rpc DeleteResourceType(DeleteResourceTypeReq) returns (Status);
+}
+
+message Storehouse {
+    string id = 1;
+    string resource_type_id = 2; 
+    int32 amount = 3;
+}
+
+message CreateStorehouseReq {
+    string resource_type_id = 2; 
+    int32 amount = 3;
+}
+
+message UpdateStorehouseReq {
+    int32 amount = 3;
+}
+
+message GetStorehouseReq {
+    string id = 1;
+}
+
+message GetAllStorehouseReq {
+    string fields = 1;
+    string value = 2;
+    int64 page = 3;
+    int64 limit = 4;
+}
+
+message GetAllStorehouseRes {
+    repeated Storehouse storehouses = 1;
+    int64 count = 2;
+}
+
+message ResourceType {
+    string id = 1; 
+    string name = 2;
+    float price = 3;
+    string created_at = 4;
+    string updated_at = 5;
+}
+
+message CreateResourceTypeReq {
+    string name = 1;
+    float price = 2;
+}
+
+message GetResourceTypeReq {
+    string id = 1;
+}
+
+message GetAllResourceTypeReq {
+    string fields = 1;
+    string value = 2;
+    int64 page = 3;
+    int64 limit = 4;
+}
+
+message GetAllResourceTypeRes {
+    repeated ResourceType resource_types = 1;
+    int64 count = 2;
+}
+
+message UpdateResourceTypeReq {
+    string id = 1;
+    string name = 2;
+    float price = 3;
+}
+
+message DeleteResourceTypeReq {
+    string id = 1;
+}
+
+message Status {
+    string message = 1; 
+}
