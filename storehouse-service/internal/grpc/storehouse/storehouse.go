@@ -2,9 +2,9 @@ package user_server
 
 import (
 	"context"
+	"fmt"
 	"storehouse-service/internal/entity"
 	"storehouse-service/internal/grpc/storehouse/valid"
-	"sync"
 	"time"
 
 	storehouses1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/storehouses"
@@ -15,8 +15,8 @@ import (
 
 type StorehouseServer struct {
 	storehouses1.UnimplementedStorehouseServiceServer
-	storehouseService   StorehouseService
-	mu                  sync.Mutex
+	storehouseService StorehouseService
+	// mu                  sync.Mutex
 	statusStorehouseMap map[string]*storehouses1.Storehouse
 }
 
@@ -83,9 +83,37 @@ func (s *StorehouseServer) GetStorehouse(ctx context.Context, req *storehouses1.
 	}, nil
 }
 
-// func (s *StorehouseServer) GetAllStorehouse(ctx context.Context, req *storehouses1.GetAllStorehouseReq) (*storehouses1.GetAllStorehouseRes, error){
+func (s *StorehouseServer) GetAllStorehouse(ctx context.Context, req *storehouses1.GetAllStorehouseReq) (*storehouses1.GetAllStorehouseRes, error) {
+	storehouses, err := s.storehouseService.GetAllStorehouses(ctx, &entity.GetAllStorehouseReq{
+		Field:  req.Fields,
+		Value:  req.Value,
+		Offset: req.Page,
+		Limit:  req.Limit,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-// }
+	response := &storehouses1.GetAllStorehouseRes{
+		Storehouses: make([]*storehouses1.Storehouse, 0, len(storehouses.Storehouses)),
+		Count:       int64(len(storehouses.Storehouses)),
+	}
+
+	for _, sh := range storehouses.Storehouses {
+		response.Storehouses = append(response.Storehouses, &storehouses1.Storehouse{
+			Id:            sh.Id,
+			Name:          sh.Name,
+			Price:         sh.Price,
+			Amount:        sh.Amount,
+			TypeArtillery: sh.TypeArtillery,
+			CreatedAt:     sh.CreatedAt,
+			UpdatedAt:     sh.UpdatedAt,
+			DeletedAt:     sh.DeletedAt,
+		})
+	}
+	fmt.Println(storehouses)
+	return response, nil
+}
 
 func (s *StorehouseServer) UpdateStorehouse(ctx context.Context, req *storehouses1.UpdateStorehouseReq) (*storehouses1.Storehouse, error) {
 	if err := valid.ValidateUpdateStorehouseReq(req); err != nil {
@@ -96,8 +124,11 @@ func (s *StorehouseServer) UpdateStorehouse(ctx context.Context, req *storehouse
 	defer cancel1()
 
 	storehouse, err := s.storehouseService.UpdateStorehouse(ctx1, &entity.UpdateStorehouseReq{
-		Id:     req.Id,
-		Amount: req.Amount,
+		Id:            req.Id,
+		Price:         req.Price,
+		Amount:        req.Amount,
+		Name:          req.Name,
+		TypeArtillery: req.TypeArtillery,
 	})
 	if err != nil {
 		return nil, err
@@ -115,10 +146,12 @@ func (s *StorehouseServer) UpdateStorehouse(ctx context.Context, req *storehouse
 		Price:         storehouse.Price,
 		Amount:        storehouse.Amount,
 		TypeArtillery: storehouse.TypeArtillery,
+		CreatedAt:     storehouse.CreatedAt,
+		UpdatedAt:     storehouse.UpdatedAt,
 	}, nil
 }
 
-func (s *StorehouseServer) DeleteStorehouse(ctx context.Context, req *storehouses1.DeleteStorehouseReq) (*storehouses1.Status, error) {
+func (s *StorehouseServer) DeleteStorehouse(ctx context.Context, req *storehouses1.DeleteStorehouseReq) (*storehouses1.DeleteStorehouseRes, error) {
 	msg, err := s.storehouseService.DeleteStorehouse(ctx, &entity.DeleteStorehouseReq{
 		Id: req.Id,
 	})
@@ -126,7 +159,7 @@ func (s *StorehouseServer) DeleteStorehouse(ctx context.Context, req *storehouse
 		return nil, err
 	}
 
-	return &storehouses1.Status{
+	return &storehouses1.DeleteStorehouseRes{
 		Message: msg.Message,
 	}, nil
 }

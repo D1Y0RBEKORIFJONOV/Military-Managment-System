@@ -1,3 +1,0 @@
-syntax = "proto3";
-
-option  go_package  = "diyorbek.soldiers.v1;soldiers1";

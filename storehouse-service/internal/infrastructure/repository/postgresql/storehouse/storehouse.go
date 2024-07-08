@@ -81,6 +81,8 @@ func (repo *StorehouseRepository) UpdateStorehouse(ctx context.Context, req *ent
 	`, repo.tableName)
 
 	var storehouse entity.Storehouse
+	var updated_at time.Time
+	var created_at time.Time
 	err := repo.db.QueryRow(ctx, query,
 		req.Name,
 		req.Price,
@@ -94,12 +96,15 @@ func (repo *StorehouseRepository) UpdateStorehouse(ctx context.Context, req *ent
 		&storehouse.Price,
 		&storehouse.Amount,
 		&storehouse.TypeArtillery,
-		&storehouse.CreatedAt,
-		&storehouse.UpdatedAt,
+		&created_at,
+		&updated_at,
 	)
 	if err != nil {
 		return nil, err
 	}
+
+	storehouse.CreatedAt = created_at.Format("2006-01-02")
+	storehouse.UpdatedAt = updated_at.Format("2006-01-02")
 
 	return &storehouse, nil
 }
@@ -158,7 +163,7 @@ func (repo *StorehouseRepository) GetAllStorehouse(ctx context.Context, req *ent
 	`, repo.tableName)
 
 	if req.Field != "" && req.Value != "" {
-		query += fmt.Sprintf("WHERE %s = $1", req.Field)
+		query += fmt.Sprintf("WHERE %s = '%s'", req.Field, req.Value)
 	}
 
 	if req.Limit != 0 {
@@ -169,8 +174,9 @@ func (repo *StorehouseRepository) GetAllStorehouse(ctx context.Context, req *ent
 		query += fmt.Sprintf(" OFFSET %d", req.Offset)
 	}
 
+	fmt.Println(query)
 	var storehouses entity.GetAllStorehouseRes
-	rows, err := repo.db.Query(ctx, query, req.Value)
+	rows, err := repo.db.Query(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -178,14 +184,16 @@ func (repo *StorehouseRepository) GetAllStorehouse(ctx context.Context, req *ent
 	for rows.Next() {
 		var storehouse entity.Storehouse
 		var deletedAt sql.NullTime
+		var created_at time.Time
+		var updated_at time.Time
 		err = rows.Scan(
 			&storehouse.Id,
 			&storehouse.Name,
 			&storehouse.Price,
 			&storehouse.Amount,
 			&storehouse.TypeArtillery,
-			&storehouse.CreatedAt,
-			&storehouse.UpdatedAt,
+			&created_at,
+			&updated_at,
 			&deletedAt,
 		)
 		if err != nil {
@@ -194,8 +202,11 @@ func (repo *StorehouseRepository) GetAllStorehouse(ctx context.Context, req *ent
 		if deletedAt.Valid {
 			storehouse.DeletedAt = deletedAt.Time.Format("2006-01-02")
 		}
+		storehouse.CreatedAt = created_at.Format("2006-01-02")
+		storehouse.UpdatedAt = updated_at.Format("2006-01-02")
 		storehouses.Storehouses = append(storehouses.Storehouses, &storehouse)
 	}
+	fmt.Println(storehouses)
 	return &storehouses, nil
 }
 

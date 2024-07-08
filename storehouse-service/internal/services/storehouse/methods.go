@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"context"
+	"fmt"
 	"storehouse-service/internal/entity"
 	"storehouse-service/logger"
 	"strconv"
@@ -56,6 +57,7 @@ func (s *Storehouse) UpdateStorehouse(ctx context.Context, req *entity.UpdateSto
 	log.Info("Updating storehouse")
 	storehouse, err = s.updater.UpdateStorehouse(ctx, req)
 	if err != nil {
+		log.Error("Update storehouse", logger.Error(err))
 		return nil, errors.Wrap(err, op)
 	}
 	return storehouse, nil
@@ -71,6 +73,7 @@ func (s *Storehouse) DeleteStorehouse(ctx context.Context, req *entity.DeleteSto
 	log.Info("Deleting storehouse")
 	msg, err := s.deleter.DeleteStorehouse(ctx, req)
 	if err != nil {
+		log.Error("Delete storehouse", logger.Error(err))
 		return nil, errors.Wrap(err, op)
 	}
 	return msg, nil
@@ -85,9 +88,11 @@ func (s *Storehouse) GetAllStorehouses(ctx context.Context, req *entity.GetAllSt
 		logger.String("Field", req.Field),
 	)
 
-	log.Info("Retrieving all storehouses")
+	log.Info("Get all storehouses")
 	storehouses, err = s.provider.GetAllStorehouse(ctx, req)
+	fmt.Println(storehouses)
 	if err != nil {
+		log.Error("Get all storehouses", logger.Error(err))
 		return nil, errors.Wrap(err, op)
 	}
 	return storehouses, nil

@@ -12,7 +12,7 @@ type Storehouse struct {
 	deleter  StorehouseDeleter
 }
 
-func NewUser(log logger.ILogger,
+func NewStorehouse(log logger.ILogger,
 	provider StorehouseProvider,
 	creater StorehouseCreater,
 	deleter StorehouseDeleter,

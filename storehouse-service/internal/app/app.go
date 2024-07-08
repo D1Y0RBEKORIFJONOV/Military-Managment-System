@@ -5,7 +5,7 @@ import (
 	user_repository "storehouse-service/internal/infrastructure/repository/postgresql/storehouse"
 	"storehouse-service/internal/pkg/config"
 	"storehouse-service/internal/pkg/postgres"
-	user_service "storehouse-service/internal/services/storehouse"
+	storehouse_service "storehouse-service/internal/services/storehouse"
 	"storehouse-service/logger"
 )
 
@@ -19,7 +19,7 @@ func NewApp(logger logger.ILogger, grpcPort int, configStr config.Config) *App {
 		panic(err)
 	}
 	storage := user_repository.NewStorehouseRepository(db, logger)
-	user := user_service.NewUser(logger, storage, storage, storage, storage)
+	user := storehouse_service.NewStorehouse(logger, storage, storage, storage, storage)
 	GRPCApp := grpcapp.NewApp(logger, grpcPort, user)
 	return &App{
 		GRPCServer: GRPCApp,

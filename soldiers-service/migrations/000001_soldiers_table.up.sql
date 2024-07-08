@@ -1,0 +1,18 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS soldiers (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    birth_date DATE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    join_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
+    is_registered BOOLEAN DEFAULT FALSE,
+    secret_code VARCHAR(255) NOT NULL,
+    role VARCHAR(255) NOT NULL DEFAULT 'soldiers'
+);
