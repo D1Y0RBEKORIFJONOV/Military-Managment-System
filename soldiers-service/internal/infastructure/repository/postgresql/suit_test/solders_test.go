@@ -123,5 +123,4 @@ func (s *SoladinTest) TestUser() {
 	})
 	s.NoError(err)
 
-
 }

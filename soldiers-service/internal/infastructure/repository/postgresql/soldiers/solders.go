@@ -17,8 +17,6 @@ type SoldiersRepository struct {
 	log       *slog.Logger
 }
 
-
-
 func NewSolderRepository(db *postgres.PostgresDB, log *slog.Logger) *SoldiersRepository {
 	return &SoldiersRepository{
 		db:        db,
@@ -40,7 +38,8 @@ func (reop *SoldiersRepository) selectQuery() string {
 	created_at,
 	updated_at,
 	deleted_at,
-	role
+	role,
+	term
 
 `
 }
@@ -114,6 +113,7 @@ func (s *SoldiersRepository) RegisterSoldiers(ctx context.Context, req *soldiers
 		&soldier.Updated_at,
 		&deleted,
 		&soldier.Role,
+		&soldier.Term,
 	)
 	if err != nil {
 		log.Error(err.Error())
@@ -155,7 +155,8 @@ func (s *SoldiersRepository) GetSoldiers(ctx context.Context, req *soldiers_enti
 		&soldier.Created_at,
 		&soldier.Updated_at,
 		&deleted,
-		&soldier.Role)
+		&soldier.Role,
+		&soldier.Term)
 	if err != nil {
 		log.Error(err.Error())
 		if err == sql.ErrNoRows {
@@ -179,11 +180,21 @@ func (s *SoldiersRepository) GetAllSoldiers(ctx context.Context, req *soldiers_e
 	if req.Field != "" && req.Value != "" {
 		toSql = toSql.Where(s.db.Sq.Equal(req.Field, req.Value))
 	}
+
+	if req.StartAt != "" {
+		toSql = toSql.Where(s.db.Sq.Gt(req.SortBy, req.StartAt))
+	}
+
+	if req.EndAt != "" {
+		toSql = toSql.Where(s.db.Sq.Lt(req.SortBy, req.EndAt))
+	}
+
 	if req.Limit != 0 {
 		toSql = toSql.Limit(uint64(req.Limit))
 	}
+
 	if req.Page != 0 {
-		toSql = toSql.Offset(uint64(req.Page - 1))
+		toSql = toSql.Offset(uint64(req.Page))
 	}
 
 	query, args, err := toSql.ToSql()
@@ -191,12 +202,16 @@ func (s *SoldiersRepository) GetAllSoldiers(ctx context.Context, req *soldiers_e
 		log.Error(err.Error())
 		return nil, err
 	}
+
 	rows, err := s.db.Query(ctx, query, args...)
 	if err != nil {
 		log.Error(err.Error())
 		return nil, err
 	}
+
+	log.Info("query: ", query, args)
 	defer rows.Close()
+
 	var soldiers []*soldiers_entity.Soldiers
 	for rows.Next() {
 		var soldier soldiers_entity.Soldiers
@@ -213,7 +228,9 @@ func (s *SoldiersRepository) GetAllSoldiers(ctx context.Context, req *soldiers_e
 			&soldier.Created_at,
 			&soldier.Updated_at,
 			&deleted,
-			&soldier.Role)
+			&soldier.Role,
+			&soldier.Term,
+		)
 		if err != nil {
 			log.Error(err.Error())
 			return nil, err
@@ -223,6 +240,7 @@ func (s *SoldiersRepository) GetAllSoldiers(ctx context.Context, req *soldiers_e
 		}
 		soldiers = append(soldiers, &soldier)
 	}
+
 	return soldiers, nil
 }
 
@@ -314,71 +332,70 @@ func (s *SoldiersRepository) UpdateSoldiers(ctx context.Context,
 		return nil, err_entity.ErrReqIsEmpty
 	}
 	query, args, err := s.db.Sq.Builder.Update(s.tableName).SetMap(data).
-	Where(s.db.Sq.Equal("id", req.ID)).
-	Suffix(s.Returning(s.selectQuery())).ToSql()
+		Where(s.db.Sq.Equal("id", req.ID)).
+		Suffix(s.Returning(s.selectQuery())).ToSql()
 
-	if err!= nil {
-        log.Error(err.Error())
-        return nil, err
-    }
+	if err != nil {
+		log.Error(err.Error())
+		return nil, err
+	}
 	var soldier soldiers_entity.Soldiers
 	var deleted sql.NullTime
 	err = s.db.QueryRow(ctx, query, args...).Scan(
-        &soldier.ID,
-        &soldier.Fname,
-        &soldier.Lname,
-        &soldier.Email,
+		&soldier.ID,
+		&soldier.Fname,
+		&soldier.Lname,
+		&soldier.Email,
 		&soldier.Birthday,
-        &soldier.Password,
-        &soldier.Age,
-        &soldier.Joined_at,
-        &soldier.Created_at,
+		&soldier.Password,
+		&soldier.Age,
+		&soldier.Joined_at,
+		&soldier.Created_at,
 		&soldier.Updated_at,
-        &deleted,
-        &soldier.Role)
-		if err!= nil {
-			log.Error(err.Error())
-            if err == sql.ErrNoRows {
-                return nil, err_entity.ErrorNotFound
-            }
-            return nil, err
-        }
-		if!deleted.Time.IsZero() {
-            return nil, err_entity.ErrUserDeleted
-        }
-		return &soldier, nil
+		&deleted,
+		&soldier.Role)
+	if err != nil {
+		log.Error(err.Error())
+		if err == sql.ErrNoRows {
+			return nil, err_entity.ErrorNotFound
+		}
+		return nil, err
+	}
+	if !deleted.Time.IsZero() {
+		return nil, err_entity.ErrUserDeleted
+	}
+	return &soldier, nil
 }
 
-
-func (s *SoldiersRepository)DeleteSoldiers(ctx context.Context, req *soldiers_entity.DeleteSoldiersRequest) error{ 
+func (s *SoldiersRepository) DeleteSoldiers(ctx context.Context, req *soldiers_entity.DeleteSoldiersRequest) error {
 	const op = "soldiers_repo.DeleteSoldiers"
-    log := s.log.With(
-        slog.String("method-addr", op))
-	
+	log := s.log.With(
+		slog.String("method-addr", op))
+
 	var (
 		query string
-        args  []interface{}
-		err  error
+		args  []interface{}
+		err   error
 	)
 
 	if req.IsHardDelete {
 		query, args, err = s.db.Sq.Builder.Delete(s.tableName).Where(s.db.Sq.Equal("id", req.ID)).ToSql()
-	}else {
+	} else {
 		query, args, err = s.db.Sq.Builder.Update(s.tableName).Set("deleted_at", time.Now()).Where(s.db.Sq.Equal("id", req.ID)).ToSql()
 	}
-	if err!= nil {
-        log.Error(err.Error())
-        return err
-    }
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	res, err := s.db.Exec(ctx, query, args...)
-	if err!= nil {
-        log.Error(err.Error())
-        return err
-    }
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
 	rowsAffected := res.RowsAffected()
-	
+
 	if rowsAffected == 0 {
-        return err_entity.ErrorNotFound
-    }
+		return err_entity.ErrorNotFound
+	}
 	return nil
 }

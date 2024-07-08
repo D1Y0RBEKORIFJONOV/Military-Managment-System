@@ -14,5 +14,6 @@ CREATE TABLE IF NOT EXISTS soldiers (
     deleted_at TIMESTAMP,
     is_registered BOOLEAN DEFAULT FALSE,
     secret_code VARCHAR(255) NOT NULL,
-    role VARCHAR(255) NOT NULL DEFAULT 'soldiers'
+    role VARCHAR(255) NOT NULL DEFAULT 'soldier',
+    term TIMESTAMP NOT NULL DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days')
 );

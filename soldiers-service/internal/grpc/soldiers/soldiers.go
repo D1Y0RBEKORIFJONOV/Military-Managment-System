@@ -2,7 +2,6 @@ package soldiers
 
 import (
 	"context"
-	"fmt"
 	"log"
 	err_entity "soldiers_service/internal/entity/errors"
 	soldiers_entity "soldiers_service/internal/entity/soldiers"
@@ -27,7 +26,6 @@ func RegisterSoldiersServer(GRPCServer *grpc.Server,
 
 func (s *SoldiersServer) CreateSoldiers(ctx context.Context, req *soldiers1.CreateSoldiersReq) (*soldiers1.Status, error) {
 	if req.Email == "" || req.Password == "" || req.BirhtDay == "" {
-		fmt.Println("SDGFKLJHSDKLJGHDKLSGHKLSKLSKLSKLSKLSKLSK")
 		return nil, err_entity.ErrorInvalidArguments
 	}
 	parse_time, err := time.Parse("2006-01-02", req.BirhtDay)
@@ -75,6 +73,7 @@ func (s *SoldiersServer) RegisterUser(ctx context.Context,
 		CreatedAt: solder.Created_at.Format(time.RFC3339),
 		UpdatedAt: solder.Updated_at.Format(time.RFC3339),
 		DeletedAt: solder.Deleted_at.Format(time.RFC3339),
+		Term:      solder.Term.Format(time.RFC3339),
 	}, nil
 }
 
@@ -118,15 +117,19 @@ func (s *SoldiersServer) GetSoldier(ctx context.Context, req *soldiers1.GetSoldi
 		CreatedAt: solder.Created_at.Format(time.RFC3339),
 		UpdatedAt: solder.Updated_at.Format(time.RFC3339),
 		DeletedAt: solder.Deleted_at.Format(time.RFC3339),
+		Term:      solder.Term.Format(time.RFC3339),
 	}, nil
 }
 
 func (s *SoldiersServer) GetAllSoldiers(ctx context.Context, req *soldiers1.GetAllSoldierReq) (*soldiers1.GetSoldierRequestResponse, error) {
 	soldiers, err := s.soldiers.GetAllSoldiers(ctx, &soldiers_entity.GetAllSoldierRequests{
-		Field: req.Filed,
-		Value: req.Value,
-		Page:  req.Page,
-		Limit: req.Limit,
+		Field:   req.Filed,
+		Value:   req.Value,
+		Page:    req.Page,
+		Limit:   req.Limit,
+		StartAt: req.StartAt,
+		EndAt:   req.EndAt,
+		SortBy:  req.SordBy,
 	})
 	if err != nil {
 		return nil, err
@@ -145,8 +148,10 @@ func (s *SoldiersServer) GetAllSoldiers(ctx context.Context, req *soldiers1.GetA
 			CreatedAt: solder.Created_at.Format(time.RFC3339),
 			UpdatedAt: solder.Updated_at.Format(time.RFC3339),
 			DeletedAt: solder.Deleted_at.Format(time.RFC3339),
+			Term:      solder.Term.Format(time.RFC3339),
 		})
 	}
+	response.Count = int64(len(response.Soldiers))
 
 	return response, nil
 }
@@ -187,16 +192,16 @@ func (s *SoldiersServer) UpdateSoldier(ctx context.Context, req *soldiers1.Updat
 
 func (s *SoldiersServer) DeleteSoldier(ctx context.Context, req *soldiers1.DeleteSoldierReq) (*soldiers1.Status, error) {
 	if req.SoldersId == "" {
-        return nil, err_entity.ErrorInvalidArguments
-    }
-    err := s.soldiers.DeleteSoldiers(ctx, &soldiers_entity.DeleteSoldiersRequest{
-        ID: req.SoldersId,
+		return nil, err_entity.ErrorInvalidArguments
+	}
+	err := s.soldiers.DeleteSoldiers(ctx, &soldiers_entity.DeleteSoldiersRequest{
+		ID:           req.SoldersId,
 		IsHardDelete: req.IsHardDelete,
-    })
-    if err!= nil {
-        return nil, err
-    }
-    return &soldiers1.Status{
-        Message: "Soldier deleted successfully",
-    }, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &soldiers1.Status{
+		Message: "Soldier deleted successfully",
+	}, nil
 }

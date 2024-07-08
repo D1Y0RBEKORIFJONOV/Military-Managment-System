@@ -24,6 +24,7 @@ type Soldiers struct {
 	Updated_at time.Time `json:"updated_at"`
 	Deleted_at time.Time `json:"deleted_at"`
 	Role       string    `json:"role"`
+	Term       time.Time `json:"term"`
 }
 
 type LoginReq struct {
@@ -42,10 +43,13 @@ type FildValueReq struct {
 }
 
 type GetAllSoldierRequests struct {
-	Field string `json:"field"`
-	Value string `json:"value"`
-	Page  int64  `json:"page"`
-	Limit int64  `json:"limit"`
+	Field   string `json:"field"`
+	Value   string `json:"value"`
+	Page    int64  `json:"page"`
+	Limit   int64  `json:"limit"`
+	StartAt string `json:"start_at"`
+	EndAt   string `json:"end_at"`
+	SortBy  string `json:"order_by"`
 }
 
 type UpdateSoldierRequests struct {
