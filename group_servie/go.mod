@@ -3,7 +3,7 @@ module group_service
 go 1.22.5
 
 require (
-	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.1.8
+	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.2.2
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/jackc/pgconn v1.14.3
 	github.com/jackc/pgx/v4 v4.18.3

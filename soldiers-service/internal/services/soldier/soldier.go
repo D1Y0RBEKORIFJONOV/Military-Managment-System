@@ -41,7 +41,6 @@ func NewSolderService(
 	}
 }
 
-
 func (s *Soldiers) CreateSoldiers(ctx context.Context, req *soldiers_entity.CreateSoldiersReq) error {
 	const op = "soldier_service.CreateSoldiers"
 	log := s.log.With(

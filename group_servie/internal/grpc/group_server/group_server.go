@@ -4,7 +4,7 @@ import (
 	"context"
 	group_entity "group_service/internal/entity/group"
 	clientgrpcserver "group_service/internal/infastructure/client_grpc_server"
-	groupserverusecase "group_service/internal/usecase/group_server_usecase"
+	groupserverusecase "group_service/internal/usecase/services_usecase"
 
 	group1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/group"
 	soldiers1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/soldiers"
@@ -26,9 +26,8 @@ func RegisterGroupServer(GRPCServer *grpc.Server, group groupserverusecase.Group
 
 func (s *GroupServer) CreateGroup(ctx context.Context, req *group1.CreateGroupRequest) (*group1.Group, error) {
 	group, err := s.group.CreateGroup(ctx, &group_entity.CreateGroupRequest{
-		SoldiersID: req.SoldiersId,
-		GroupName:  req.GroupName,
-		SizeLimit:  int64(req.SizeLimit),
+		GroupName: req.GroupName,
+		SizeLimit: int64(req.SizeLimit),
 	})
 	if err != nil {
 		return nil, err
@@ -61,76 +60,80 @@ func (s *GroupServer) AddGroupSolders(ctx context.Context,
 		return nil, err
 	}
 	soldes := &group1.SoldiersGroup{
-		Id:      s1.Id,
-		FnName: s1.FnName,
-		LnName: s1.LnName,
-		Email:   s1.Email,
-        BirhtDay: s1.BirhtDay,
-        Role:    s1.Role,
+		Id:       s1.Id,
+		FnName:   s1.FnName,
+		LnName:   s1.LnName,
+		Email:    s1.Email,
+		BirhtDay: s1.BirhtDay,
+		Role:     s1.Role,
 	}
 	return &group1.AddGroupSoldersResponse{
-		GroupId: req.GroupId,
+		GroupId:       req.GroupId,
 		SoldiersGroup: soldes,
 	}, nil
 }
 
-
-func (s *GroupServer)DeleteGroup(ctx context.Context, req *group1.DeleteGroupRequest)(*group1.DeleteGroupResponse, error) {
+func (s *GroupServer) DeleteGroup(ctx context.Context, req *group1.DeleteGroupRequest) (*group1.DeleteGroupResponse, error) {
 	err := s.group.DeleteGroup(ctx, &group_entity.DeleteGroupRequest{
-        Id: req.GroupId,
-    })
-    if err!= nil {
-        return nil, err
-    }
-   return &group1.DeleteGroupResponse{
-	Message: "Deleted Group",
-   },nil
-}
-
-func (s *GroupServer)GetAllResourceTypes(ctx context.Context, 
-	req *group1.GetAllServiceRequest) (*group1.GetAllResourceTypesResponse, error) {
-	groups, err := s.group.GetAllResourceTypes(ctx, &group_entity.GetAllServiceRequest{
+		Id:    req.GroupId,
 		Field: req.Field,
 		Value: req.Value,
-		Page:   int64(req.Page),
-        Limit:  int64(req.Limit),
 	})
-	if err!= nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
+	return &group1.DeleteGroupResponse{
+		Message: "Deleted Group",
+	}, nil
+}
+
+func (s *GroupServer) GetAllResourceTypes(ctx context.Context,
+	req *group1.GetAllServiceRequest) (*group1.GetAllResourceTypesResponse, error) {
+	groups, err := s.group.GetAllResourceTypes(ctx, &group_entity.GetAllServiceRequest{
+		Field:   req.Field,
+		Value:   req.Value,
+		Page:    int64(req.Page),
+		Limit:   int64(req.Limit),
+		SordBy:  req.SordBy,
+		StartAt: req.StartAt,
+		EndAt:   req.EndAt,
+	})
+	if err != nil {
+		return nil, err
+	}
 	resourceTypes := make([]*group1.Group, 0, len(groups))
 	for _, group := range groups {
 		resourceTypes = append(resourceTypes, &group1.Group{
-            GroupId:    group.Id,
-            SoldiersId: group.SoldiersID,
-            GropName:   group.GroupName,
-            Size:       uint64(group.Size),
-            SizeLimit:  uint64(group.SizeLimit),
-            CreatedAt:  group.CreatedAt,
-            UpdatedAt:  group.UpdatedAt,
-        })
-    }
+			GroupId:    group.Id,
+			SoldiersId: group.SoldiersID,
+			GropName:   group.GroupName,
+			Size:       uint64(group.Size),
+			SizeLimit:  uint64(group.SizeLimit),
+			CreatedAt:  group.CreatedAt,
+			UpdatedAt:  group.UpdatedAt,
+		})
+	}
 	return &group1.GetAllResourceTypesResponse{
-        Grops: resourceTypes,
-    }, nil
+		Grops: resourceTypes,
+	}, nil
 }
 
 func (s *GroupServer) UpdateGroup(ctx context.Context, req *group1.UpdateGroupRequest) (*group1.Group, error) {
 	group, err := s.group.UpdateGroup(ctx, &group_entity.UpdateGroupRequest{
-        Id:        req.GroupId,
-        GroupName:  req.GroupName,
-        SizeLimit:  int64(req.SizeLimit),
-    })
-    if err!= nil {
-        return nil, err
-    }
-    return &group1.Group{
-        GroupId:    group.Id,
-        SoldiersId: group.SoldiersID,
-        GropName:   group.GroupName,
-        Size:       uint64(group.Size),
-        SizeLimit:  uint64(group.SizeLimit),
-        CreatedAt:  group.CreatedAt,
-        UpdatedAt:  group.UpdatedAt,
-    }, nil
+		Id:        req.GroupId,
+		GroupName: req.GroupName,
+		SizeLimit: int64(req.SizeLimit),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &group1.Group{
+		GroupId:    group.Id,
+		SoldiersId: group.SoldiersID,
+		GropName:   group.GroupName,
+		Size:       uint64(group.Size),
+		SizeLimit:  uint64(group.SizeLimit),
+		CreatedAt:  group.CreatedAt,
+		UpdatedAt:  group.UpdatedAt,
+	}, nil
 }
