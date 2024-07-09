@@ -6,7 +6,7 @@ run:
 migrate-file:
 	migrate create -ext sql -dir migrations/ -seq soldiers_table
 
-DB_URL := "postgres://postgres:+_+diyor2005+_+@localhost:5432/solders_service?sslmode=disable"
+DB_URL := "postgres://postgres:password@localhost:5432/solders_service?sslmode=disable"
 
 migrate-up:
 	migrate -path migrations -database $(DB_URL) -verbose up

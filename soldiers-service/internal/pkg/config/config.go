@@ -38,7 +38,6 @@ func Token() string {
 func New() *Config {
 	var config Config
 
-
 	config.APP = getEnv("APP", "app")
 	config.Environment = getEnv("ENVIRONMENT", "develop")
 	config.LogLevel = getEnv("LOG_LEVEL", "local")

@@ -1,0 +1,652 @@
+definitions:
+  models.CreateSoldier:
+    properties:
+      birthday:
+        type: string
+      email:
+        type: string
+      fname:
+        type: string
+      l_name:
+        type: string
+      pasword:
+        type: string
+    type: object
+  models.CreateStorehouseReq:
+    properties:
+      amount:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      type_artillery:
+        type: string
+    type: object
+  models.GetAllStorehouseRes:
+    properties:
+      count:
+        type: integer
+      storehouses:
+        items:
+          $ref: '#/definitions/models.Storehouse'
+        type: array
+    type: object
+  models.RegisterModel:
+    properties:
+      birht_day:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    type: object
+  models.RegisterResponse:
+    properties:
+      access_token:
+        type: string
+      birht_day:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      refresh_token:
+        type: string
+      role:
+        type: string
+    type: object
+  models.Response:
+    properties:
+      data: {}
+      description:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  models.Soldier:
+    properties:
+      age:
+        type: integer
+      birthday:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      fname:
+        type: string
+      id:
+        type: string
+      joined_at:
+        type: string
+      l_name:
+        type: string
+      pasword:
+        type: string
+      role:
+        type: string
+      term:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Storehouse:
+    properties:
+      amount:
+        type: integer
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      type_artillery:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.UpdateSoldier:
+    properties:
+      birthday:
+        type: string
+      fname:
+        type: string
+      id:
+        type: string
+      lname:
+        type: string
+      password:
+        type: string
+    type: object
+  models.UpdateStorehouseReq:
+    properties:
+      amount:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      type_artillery:
+        type: string
+    type: object
+host: localhost:9999
+info:
+  contact: {}
+  title: welcome to
+  version: "1.7"
+paths:
+  /soldier:
+    post:
+      consumes:
+      - application/json
+      description: create a new soldier
+      parameters:
+      - description: soldier
+        in: body
+        name: soldier
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateSoldier'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Soldier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Creates a new soldier
+      tags:
+      - soldier
+  /soldier/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete soldier
+      parameters:
+      - description: soldier_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Delete soldier
+      tags:
+      - soldier
+    get:
+      consumes:
+      - application/json
+      description: Get soldier by id
+      parameters:
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Soldier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get soldier by id
+      tags:
+      - soldier
+    put:
+      consumes:
+      - application/json
+      description: Update soldier data
+      parameters:
+      - description: soldier_id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: soldier
+        in: body
+        name: soldier
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateSoldier'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Soldier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Update soldier data
+      tags:
+      - soldier
+  /soldiers:
+    get:
+      consumes:
+      - application/json
+      description: Get soldiers list
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      - description: sort_by
+        in: query
+        name: sort_by
+        type: string
+      - description: started_at
+        in: query
+        name: started_at
+        type: string
+      - description: ended_at
+        in: query
+        name: ended_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get soldiers list
+      tags:
+      - soldier
+  /storehouse:
+    post:
+      consumes:
+      - application/json
+      description: create a new storehouse
+      parameters:
+      - description: storehouse
+        in: body
+        name: storehouse
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateStorehouseReq'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Storehouse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Creates a new storehouse
+      tags:
+      - storehouse
+  /storehouse/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete storehouse
+      parameters:
+      - description: storehouse_id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Delete storehouse
+      tags:
+      - storehouse
+    get:
+      consumes:
+      - application/json
+      description: Get storehouse by id
+      parameters:
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Storehouse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get storehouse by id
+      tags:
+      - storehouse
+    put:
+      consumes:
+      - application/json
+      description: Update storehouse data
+      parameters:
+      - description: storehouse_id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: storehouse
+        in: body
+        name: storehouse
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStorehouseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Update storehouse data
+      tags:
+      - storehouse
+  /storehouses:
+    get:
+      consumes:
+      - application/json
+      description: Get storehouses list
+      parameters:
+      - description: page
+        in: query
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      - description: sort_by
+        in: query
+        name: sort_by
+        type: string
+      - description: started_at
+        in: query
+        name: started_at
+        type: string
+      - description: ended_at
+        in: query
+        name: ended_at
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.GetAllStorehouseRes'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get storehouses list
+      tags:
+      - storehouse
+  /v1/login/:
+    post:
+      consumes:
+      - application/json
+      description: LogIn - Api for registering users
+      parameters:
+      - description: Password
+        in: query
+        name: password
+        required: true
+        type: string
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegisterResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: LogIn
+      tags:
+      - Register
+  /v1/register/:
+    post:
+      consumes:
+      - application/json
+      description: Register - Api for registering users
+      parameters:
+      - description: createRegisterModel
+        in: body
+        name: Register
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegisterModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Register
+      tags:
+      - Register
+  /v1/verification/:
+    post:
+      consumes:
+      - application/json
+      description: Verification - Api for registering users
+      parameters:
+      - description: Code
+        in: query
+        name: code
+        required: true
+        type: integer
+      - description: Email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RegisterModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Verification
+      tags:
+      - Register
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -107,18 +107,18 @@ func (s *SoladinTest) TestUser() {
 	s.NoError(err)
 	s.True(ok)
 
-	solder,err := s.Repository.UpdateSoldiers(ctx, &soldiers_entity.UpdateSoldierRequests{
+	solder, err := s.Repository.UpdateSoldiers(ctx, &soldiers_entity.UpdateSoldierRequests{
 		ID:       soldier.ID,
-        Fname:    "Jane",
-        Lname:    "Doe",
-        Password: "654321",
+		Fname:    "Jane",
+		Lname:    "Doe",
+		Password: "654321",
 		Birthday: soldier.Birthday,
 	})
 	s.NoError(err)
 	log.Println(solder)
 
 	err = s.Repository.DeleteSoldiers(ctx, &soldiers_entity.DeleteSoldiersRequest{
-		ID: soldier.ID,
+		ID:           soldier.ID,
 		IsHardDelete: true,
 	})
 	s.NoError(err)

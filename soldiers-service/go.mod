@@ -3,7 +3,7 @@ module soldiers_service
 go 1.22.5
 
 require (
-	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.2.8
+	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.2.9
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jackc/pgconn v1.14.3
