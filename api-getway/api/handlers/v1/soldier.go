@@ -73,38 +73,32 @@ func (h *handlerV1) GetSoldierByID(c *gin.Context) {
 // @Produce      json
 // @Param        page query string false "page"
 // @Param        limit query string false "limit"
-// @Param        search query string false "search"
+// @Param        field query string false "field"
+// @Param        value query string false "value"
+// @Param        sort_by query string false "sort_by"
+// @Param        started_at query string false "started_at"
+// @Param        ended_at query string false "ended_at"
 // @Success      200  {object}  models.SoldiersResponse
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
-func (h *handlerV1) GetSoldiersList(c *gin.Context) {
-	var (
-		page, limit int
-		search      string
-		err         error
-	)
+func (h *handlerV1) GetAllSoldiers(c *gin.Context) {
+	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
+	limit, _ := strconv.ParseInt(c.DefaultQuery("limit", "100"), 10, 64)
+	field := c.Query("field")
+	value := c.Query("value")
+	sort_by := c.Query("sort_by")
+	started_at := c.Query("started_at")
+	ended_at := c.Query("ended_at")
 
-	pageStr := c.DefaultQuery("page", "1")
-	page, err = strconv.Atoi(pageStr)
-	if err != nil {
-		handleResponse(c, h.log, "parsing page data", http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	limitStr := c.DefaultQuery("limit", "50")
-	limit, err = strconv.Atoi(limitStr)
-	if err != nil {
-		handleResponse(c, h.log, "parsing limit data", http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	search = c.Query("search")
-
-	response, err := h.service.Soldier().GetList(context.Background(), models.GetListRequest{
-		Page:   page,
-		Limit:  limit,
-		Search: search,
+	response, err := h.serviceManager.SoldierService().GetAllSoldiers(context.Background(), &soldiers1.GetAllSoldierReq{
+		Filed:   field,
+		Value:   value,
+		SordBy:  sort_by,
+		StartAt: started_at,
+		EndAt:   ended_at,
+		Page:    page,
+		Limit:   limit,
 	})
 	if err != nil {
 		handleResponse(c, h.log, "error while get soldiers list", http.StatusInternalServerError, err.Error())
