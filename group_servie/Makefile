@@ -1,5 +1,5 @@
 run:
-	go run cmd/soldiers_service/main.go
+	go run cmd/main.go
 
 
 

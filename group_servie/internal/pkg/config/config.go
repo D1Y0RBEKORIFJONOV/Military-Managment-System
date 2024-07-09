@@ -42,7 +42,7 @@ func New() *Config {
 	config.DB.User = getEnv("POSTGRES_USER", "postgres")
 	config.DB.Password = getEnv("POSTGRES_PASSWORD", "+_+diyor2005+_+")
 	config.DB.SslMode = getEnv("POSTGRES_SSLMODE", "disable")
-	config.DB.Name = getEnv("POSTGRES_DATABASE", "solders_service")
+	config.DB.Name = getEnv("POSTGRES_DATABASE", "group_service")
 
 	config.SoldirsServer.Host = getEnv("SOLDIERS_SERVER_HOST", "localhost")
 	config.SoldirsServer.Port = getEnv("SOLDIERS_SERVER_PORT", "9000")

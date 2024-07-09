@@ -25,7 +25,6 @@ func NewGroupService(
 	updater repositoryusecase.UpdaterGroup,
 	deleter repositoryusecase.DeleterGroup,
 	log *slog.Logger,
-	tokenTTL time.Duration,
 ) *Group {
 	return &Group{
 		provider: provider,
@@ -33,7 +32,6 @@ func NewGroupService(
 		updater:  updater,
 		deleter:  deleter,
 		log:      log,
-		tokenTTL: tokenTTL,
 	}
 }
 
@@ -64,6 +62,9 @@ func (g *Group) AddGroupSolders(ctx context.Context, req *group_entity.AddGroupS
 		Field: "id",
 		Value: req.Id,
 	})
+	if len(group) == 0 {
+		return errors.New("failed to find group")
+	}
 	if group[0].Size >= group[0].SizeLimit {
 		return errors.New("group soldiers limit exceeded")
 	}

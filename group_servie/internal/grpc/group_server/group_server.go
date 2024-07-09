@@ -5,6 +5,7 @@ import (
 	group_entity "group_service/internal/entity/group"
 	clientgrpcserver "group_service/internal/infastructure/client_grpc_server"
 	groupserverusecase "group_service/internal/usecase/services_usecase"
+	"time"
 
 	group1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/group"
 	soldiers1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/soldiers"
@@ -33,13 +34,12 @@ func (s *GroupServer) CreateGroup(ctx context.Context, req *group1.CreateGroupRe
 		return nil, err
 	}
 	return &group1.Group{
-		GroupId:    group.Id,
-		SoldiersId: group.SoldiersID,
-		GropName:   group.GroupName,
-		Size:       uint64(group.Size),
-		SizeLimit:  uint64(group.SizeLimit),
-		CreatedAt:  group.CreatedAt,
-		UpdatedAt:  group.UpdatedAt,
+		GroupId:   group.Id,
+		GropName:  group.GroupName,
+		Size:      uint64(group.Size),
+		SizeLimit: uint64(group.SizeLimit),
+		CreatedAt: group.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: group.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
 
@@ -104,17 +104,17 @@ func (s *GroupServer) GetAllResourceTypes(ctx context.Context,
 	resourceTypes := make([]*group1.Group, 0, len(groups))
 	for _, group := range groups {
 		resourceTypes = append(resourceTypes, &group1.Group{
-			GroupId:    group.Id,
-			SoldiersId: group.SoldiersID,
-			GropName:   group.GroupName,
-			Size:       uint64(group.Size),
-			SizeLimit:  uint64(group.SizeLimit),
-			CreatedAt:  group.CreatedAt,
-			UpdatedAt:  group.UpdatedAt,
+			GroupId:   group.Id,
+			GropName:  group.GroupName,
+			Size:      uint64(group.Size),
+			SizeLimit: uint64(group.SizeLimit),
+			CreatedAt: group.CreatedAt.Format(time.RFC3339),
+			UpdatedAt: group.UpdatedAt.Format(time.RFC3339),
 		})
 	}
 	return &group1.GetAllResourceTypesResponse{
 		Grops: resourceTypes,
+		Count: uint64(len(resourceTypes)),
 	}, nil
 }
 
@@ -128,12 +128,11 @@ func (s *GroupServer) UpdateGroup(ctx context.Context, req *group1.UpdateGroupRe
 		return nil, err
 	}
 	return &group1.Group{
-		GroupId:    group.Id,
-		SoldiersId: group.SoldiersID,
-		GropName:   group.GroupName,
-		Size:       uint64(group.Size),
-		SizeLimit:  uint64(group.SizeLimit),
-		CreatedAt:  group.CreatedAt,
-		UpdatedAt:  group.UpdatedAt,
+		GroupId:   group.Id,
+		GropName:  group.GroupName,
+		Size:      uint64(group.Size),
+		SizeLimit: uint64(group.SizeLimit),
+		CreatedAt: group.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: group.UpdatedAt.Format(time.RFC3339),
 	}, nil
 }
