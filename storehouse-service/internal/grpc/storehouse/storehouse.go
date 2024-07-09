@@ -85,7 +85,7 @@ func (s *StorehouseServer) GetStorehouse(ctx context.Context, req *storehouses1.
 
 func (s *StorehouseServer) GetAllStorehouse(ctx context.Context, req *storehouses1.GetAllStorehouseReq) (*storehouses1.GetAllStorehouseRes, error) {
 	storehouses, err := s.storehouseService.GetAllStorehouses(ctx, &entity.GetAllStorehouseReq{
-		Field:  req.Fields,
+		Field:  req.Filed,
 		Value:  req.Value,
 		Offset: req.Page,
 		Limit:  req.Limit,

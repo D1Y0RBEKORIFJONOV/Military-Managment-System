@@ -3,7 +3,7 @@ module storehouse-service
 go 1.22.5
 
 require (
-	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.1.0
+	github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos v0.2.8
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgconn v1.14.3

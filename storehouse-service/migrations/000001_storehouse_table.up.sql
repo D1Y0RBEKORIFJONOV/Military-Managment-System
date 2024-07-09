@@ -1,4 +1,4 @@
-CREATE TABLE "storehouses" (
+CREATE TABLE IF NOT EXISTS "storehouses" (
   "id" uuid PRIMARY KEY,
   "name" varchar UNIQUE NOT NULL,
   "price" float NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE "storehouses" (
   "deleted_at" TIMESTAMP
 );
 
-CREATE TABLE "resource_usage" (
+CREATE TABLE  IF NOT EXISTS "resource_usage" (
   "id" uuid PRIMARY KEY,
   "soldier_id" uuid NOT NULL,
   "storage_id" uuid NOT NULL,

@@ -6,7 +6,7 @@ import (
 
 type Storehouse struct {
 	log      logger.ILogger
-	creater  StorehouseCreater
+	creater  Storehouse
 	provider StorehouseProvider
 	updater  StorehouseUpdater
 	deleter  StorehouseDeleter
