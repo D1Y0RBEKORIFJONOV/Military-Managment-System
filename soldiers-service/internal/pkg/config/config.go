@@ -38,7 +38,6 @@ func Token() string {
 func New() *Config {
 	var config Config
 
-
 	config.APP = getEnv("APP", "app")
 	config.Environment = getEnv("ENVIRONMENT", "develop")
 	config.LogLevel = getEnv("LOG_LEVEL", "local")
@@ -48,7 +47,7 @@ func New() *Config {
 	config.DB.Host = getEnv("POSTGRES_HOST", "localhost")
 	config.DB.Port = getEnv("POSTGRES_PORT", "5432")
 	config.DB.User = getEnv("POSTGRES_USER", "postgres")
-	config.DB.Password = getEnv("POSTGRES_PASSWORD", "+_+diyor2005+_+")
+	config.DB.Password = getEnv("POSTGRES_PASSWORD", "password")
 	config.DB.SslMode = getEnv("POSTGRES_SSLMODE", "disable")
 	config.DB.Name = getEnv("POSTGRES_DATABASE", "solders_service")
 

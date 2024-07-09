@@ -1,11 +1,11 @@
 package v1
 
 import (
-	"api-test/api/handlers/models"
-	token "api-test/api/tokens"
-	"api-test/config"
-	"api-test/pkg/logger"
-	"api-test/service"
+	"api_service/api/handlers/models"
+	token "api_service/api/tokens"
+	"api_service/config"
+	"api_service/pkg/logger"
+	"api_service/service"
 
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"

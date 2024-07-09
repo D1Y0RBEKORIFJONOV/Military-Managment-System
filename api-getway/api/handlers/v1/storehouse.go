@@ -1,279 +1,171 @@
 package v1
 
 import (
-	"api-test/api/handlers/models"
-	jwt "api-test/api/tokens"
-	"api-test/config"
-	postpb "api-test/genproto/post-service"
-	l "api-test/pkg/logger"
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
+	storehouses1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/storehouses"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/cast"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
-// CreatePost ...
-// @Summary CreatePost
-// @Security ApiKeyAuth
-// @Description Api for creating a new post
-// @Tags post
-// @Accept json
-// @Produce json
-// @Param Post body models.Post true "create post"
-// @Success 200 {object} models.Post
-// @Failure 400 {object} models.StandardErrorModel
-// @Failure 500 {object} models.StandardErrorModel
-// @Router /v1/create/post/ [post]
-func (h *handlerV1) CreatePost(c *gin.Context) {
-	var (
-		body        models.Post
-		jsonMarshal protojson.MarshalOptions
-	)
-	jsonMarshal.UseProtoNames = true
+// CreateStorehouse godoc
+// @Router       /storehouse [POST]
+// @Summary      Creates a new storehouse
+// @Description  create a new storehouse
+// @Tags         storehouse
+// @Accept       json
+// @Produce      json
+// @Param        storehouse body models.CreateStorehouseReq true "storehouse"
+// @Success      201  {object}  models.Storehouse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) CreateStorehouse(c *gin.Context) {
+	createStorehouse := storehouses1.CreateStorehouseReq{}
 
-	err := c.ShouldBindJSON(&body)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to bind json", l.Error(err))
+	if err := c.ShouldBindJSON(&createStorehouse); err != nil {
+		handleResponse(c, h.log, "error while decoding storehouse data", http.StatusBadRequest, err.Error())
 		return
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-	defer cancel()
 
-	tok := c.GetHeader("Authorization")
-	claims, err := jwt.ExtractClaim(tok, []byte(config.Load().SignInKey))
-	response, err := h.serviceManager.PostService().Create(ctx, &postpb.Post{
-		Title:    body.Title,
-		Category: body.Category,
-		Content:  body.Content,
-		ImageUrl: body.ImageUrl,
-		OwnerId:  cast.ToString(claims["sub"]),
-	})
+	createdStorehouse, err := h.serviceManager.StorehouseService().CreateStorehouse(context.Background(), &createStorehouse)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to create post", l.Error(err))
+		handleResponse(c, h.log, "error while creating storehouse", http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, response)
+
+	handleResponse(c, h.log, "successfully created storehouse", http.StatusCreated, createdStorehouse)
 }
 
-// GetPost ...
-// @Summary GetPost
-// @Security ApiKeyAuth
-// @Description Api for get post
-// @Tags post
-// @Accept json
-// @Produce json
-// @Param id query string true "Id"
-// @Success 200 {object} models.Post
-// @Failure 400 {object} models.StandardErrorModel
-// @Failure 500 {object} models.StandardErrorModel
-// @Router /v1/get/post [get]
-func (h *handlerV1) GetPost(c *gin.Context) {
-	id := c.Query("id")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-	defer cancel()
+// GetStorehouseByID godoc
+// @Router       /storehouse/{id} [GET]
+// @Summary      Get storehouse by id
+// @Description  Get storehouse by id
+// @Tags         storehouse
+// @Accept       json
+// @Produce      json
+// @Param        field query string false "field"
+// @Param        value query string false "value"
+// @Success      200  {object}  models.Storehouse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) GetStorehouseByID(c *gin.Context) {
+	fields := c.Query("fields")
+	value := c.Query("value")
 
-	post, err := h.serviceManager.PostService().GetPost(ctx, &postpb.GetRequests{
-		PostId: id,
+	storehouse, err := h.serviceManager.StorehouseService().GetStorehouse(context.Background(), &storehouses1.GetStorehouseReq{
+		Fields: fields,
+		Value:  value,
 	})
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to query", l.Error(err))
+		handleResponse(c, h.log, "error while get storehouse by id", http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusOK, post)
+
+	handleResponse(c, h.log, "successfully", http.StatusOK, storehouse)
 }
 
-// GetAllPosts gets user by id
-// @Summary GetAllPosts
-// @Security ApiKeyAuth
-// @Description Api for getting posts
-// @Tags post
-// @Accept json
-// @Produce json
-// @Param page query int true "page"
-// @Param limit query int true "limit"
-// @Success 200 {object} models.Post
-// @Failure 400 {object} models.StandardErrorModel
-// @Failure 500 {object} models.StandardErrorModel
-// @Router /v1/posts/all [get]
-func (h *handlerV1) GetAllPosts(c *gin.Context) {
-	page := c.Query("page")
-	limit := c.Query("limit")
+// GetAllStorehouses godoc
+// @Router       /storehouses [GET]
+// @Summary      Get storehouses list
+// @Description  Get storehouses list
+// @Tags         storehouse
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        field query string false "field"
+// @Param        value query string false "value"
+// @Param        sort_by query string false "sort_by"
+// @Param        started_at query string false "started_at"
+// @Param        ended_at query string false "ended_at"
+// @Success      200  {object}  models.GetAllStorehouseRes
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) GetAllStorehouses(c *gin.Context) {
+	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
+	limit, _ := strconv.ParseInt(c.DefaultQuery("limit", "100"), 10, 64)
+	field := c.Query("field")
+	value := c.Query("value")
+	sort_by := c.Query("sort_by")
+	started_at := c.Query("started_at")
+	ended_at := c.Query("ended_at")
 
-	reqPage, err := strconv.Atoi(page)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("page error", l.Error(err))
-		return
-	}
-	reqLimit, err := strconv.Atoi(limit)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("limit error", l.Error(err))
-		return
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-	defer cancel()
-	resp, err := h.serviceManager.PostService().GetAllPost(ctx, &postpb.GetAllPostRequest{
-		Page:  int64(reqPage),
-		Limit: int64(reqLimit),
+	response, err := h.serviceManager.StorehouseService().GetAllStorehouse(context.Background(), &storehouses1.GetAllStorehouseReq{
+		Filed:   field,
+		Value:   value,
+		Page:    page,
+		Limit:   limit,
+		SordBy:  sort_by,
+		StartAt: started_at,
+		EndAt:   ended_at,
 	})
+
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to list users", l.Error(err))
+		handleResponse(c, h.log, "error while getting storehouses list", http.StatusInternalServerError, err.Error())
+		return
 	}
-	c.JSON(http.StatusOK, resp)
+
+	handleResponse(c, h.log, "", http.StatusOK, response)
 }
 
-// UpdatePost ...
-// @Summary UpdatePost
-// @Security ApiKeyAuth
-// @Description Api for updating post
-// @Tags post
-// @Accept json
-// @Produce json
-// @Param Post body models.Post true "update post"
-// @Param post_id query string true "id"
-// @Success 200 {object} models.Post
-// @Failure 400 {object} models.StandardErrorModel
-// @Failure 500 {object} models.StandardErrorModel
-// @Router /v1/update/post/ [put]
-func (h *handlerV1) UpdatePost(c *gin.Context) {
-	id := c.Query("id")
-	var (
-		body        models.Post
-		jsonMarshal protojson.MarshalOptions
-	)
-	jsonMarshal.UseProtoNames = true
+// UpdateStorehouse godoc             dew
+// @Router       /storehouse/{id} [PUT]
+// @Summary      Update storehouse data
+// @Description  Update storehouse data
+// @Tags         storehouse
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storehouse_id"
+// @Param        storehouse body models.UpdateStorehouseReq true "storehouse"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) UpdateStorehouse(c *gin.Context) {
+	var updateStorehouse storehouses1.UpdateStorehouseReq
 
-	err := c.ShouldBindJSON(&body)
+	id := c.Param("id")
+
+	if err := c.ShouldBindJSON(&updateStorehouse); err != nil {
+		handleResponse(c, h.log, "error while decoding storehouse data", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	updateStorehouse.Id = id
+
+	updatedStorehouse, err := h.serviceManager.StorehouseService().UpdateStorehouse(context.Background(), &updateStorehouse)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to bind json", l.Error(err))
+		handleResponse(c, h.log, "error while updating storehouse data", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-	defer cancel()
-
-	tok := c.GetHeader("Authorization")
-	claims, err := jwt.ExtractClaim(tok, []byte(config.Load().SignInKey))
-
-	posts, err := h.serviceManager.PostService().GetPostByOwnerId(ctx, &postpb.GetByOwnerIdRequest{
-		OwnerId: cast.ToString(claims["sub"]),
-	})
-	n := 0
-	for _, i := range posts.Posts {
-		if i.Id != id {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			h.log.Error("request error", l.Error(err))
-			return
-		}
-		n++
-		break
-	}
-	if n == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "bad requests",
-		})
-		h.log.Error("request error", l.Error(err))
-		return
-	}
-
-	response, err := h.serviceManager.PostService().UpdatePost(ctx, &postpb.Post{
-		Title:    body.Title,
-		Category: body.Category,
-		Content:  body.Content,
-		ImageUrl: body.ImageUrl,
-		Id:       id,
-	})
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to updated post", l.Error(err))
-		return
-	}
-	c.JSON(http.StatusCreated, response)
+	handleResponse(c, h.log, "", http.StatusOK, updatedStorehouse)
 }
 
-// DeletePost gets user by id
-// @Summary DeletePost
-// @Security ApiKeyAuth
-// @Description Api for deleting post
-// @Tags post
-// @Accept json
-// @Produce json
-// @Param id query string true "id"
-// @Success 200 {object} models.Post
-// @Failure 400 {object} models.StandardErrorModel
-// @Failure 500 {object} models.StandardErrorModel
-// @Router /v1/delete/post [delete]
-func (h *handlerV1) DeletePost(c *gin.Context) {
-	id := c.Query("id")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-	defer cancel()
+// DeleteStorehouse godoc
+// @Router       /storehouse/{id} [DELETE]
+// @Summary      Delete storehouse
+// @Description  Delete storehouse
+// @Tags         storehouse
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "storehouse_id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) DeleteStorehouse(c *gin.Context) {
+	id := c.Param("id")
 
-	tok := c.GetHeader("Authorization")
-	claims, err := jwt.ExtractClaim(tok, []byte(config.Load().SignInKey))
-	posts, err := h.serviceManager.PostService().GetPostByOwnerId(ctx, &postpb.GetByOwnerIdRequest{
-		OwnerId: cast.ToString(claims["sub"]),
-	})
-	n := 0
-	for _, i := range posts.Posts {
-		if i.Id != id {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			h.log.Error("request error", l.Error(err))
-			return
-		}
-		n++
-		fmt.Println(i.Id, id)
-		break
-	}
-	if n == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "bad requests",
-		})
-		h.log.Error("request error", l.Error(err))
-		return
-	}
-	response, err := h.serviceManager.PostService().DeletePost(ctx, &postpb.GetRequests{PostId: id})
+	_, err := h.serviceManager.StorehouseService().DeleteStorehouse(context.Background(), &storehouses1.DeleteStorehouseReq{Id: id})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		h.log.Error("failed to deleted post", l.Error(err))
+		handleResponse(c, h.log, "error while deleting storehouse", http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.JSON(http.StatusCreated, response)
-}
 
-func (h *handlerV1) LikeDislike(c *gin.Context) {
-
+	handleResponse(c, h.log, "", http.StatusOK, "storehouse successfully deleted")
 }

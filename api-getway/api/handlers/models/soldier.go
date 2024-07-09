@@ -2,14 +2,14 @@ package models
 
 import "time"
 
-type CreateSoldiersReq struct {
+type CreateSoldier struct {
 	Fname      string    `json:"fname"`
 	Lname      string    `json:"l_name"`
 	Email      string    `json:"email"`
 	Password   string    `json:"pasword"`
 	Birthday   time.Time `json:"birthday"`
-	Role       string    `json:"role"`
-	SecredCode string    `json:"secred_code"`
+	Role       string    `json:"-"`
+	SecredCode string    `json:"-"`
 }
 type Soldier struct {
 	ID         string    `json:"id"`
@@ -52,7 +52,7 @@ type GetAllSoldierRequests struct {
 	SortBy  string `json:"order_by"`
 }
 
-type UpdateSoldierRequests struct {
+type UpdateSoldier struct {
 	ID       string    `json:"id"`
 	Fname    string    `json:"fname"`
 	Lname    string    `json:"lname"`
@@ -63,4 +63,9 @@ type UpdateSoldierRequests struct {
 type DeleteSoldiersRequest struct {
 	ID           string `json:"id"`
 	IsHardDelete bool   `json:"is_hard_delete"`
+}
+
+type GetAllSoldiers struct {
+	Soldiers []*Soldier `json:"soldiers"`
+	Count    int64
 }

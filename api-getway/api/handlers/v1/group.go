@@ -1,235 +1,200 @@
 package v1
 
-// import (
-// 	"api_service/api/handlers/models"
-// 	compb "api_service/genproto/comment-service"
-// 	pb "api_service/genproto/post-service"
-// 	l "api_service/pkg/logger"
-// 	"context"
-// 	"fmt"
-// 	"github.com/gin-gonic/gin"
-// 	"net/http"
-// 	"strconv"
-// 	"time"
-// )
+import (
+	"context"
+	"net/http"
+	"strconv"
 
-// // CreateComment ...
-// // @Summary CreateComment
-// // @Security ApiKeyAuth
-// // @Description Api for creating a new comment
-// // @Tags comment
-// // @Accept json
-// // @Produce json
-// // @Param User body models.Comment true "create comment"
-// // @Success 200 {object} models.Comment
-// // @Failure 400 {object} models.StandardErrorModel
-// // @Failure 500 {object} models.StandardErrorModel
-// // @Router /v1/create/comment [post]
-// func (h *handlerV1) CreateComment(c *gin.Context) {
-// 	var comment models.Comment
-// 	err := c.ShouldBindJSON(&comment)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to bind json", l.Error(err))
-// 		return
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-// 	defer cancel()
-// 	resp, err := h.serviceManager.PostService().GetPost(ctx, &pb.GetRequests{
-// 		PostId: comment.PostId,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to post id", l.Error(err))
-// 		return
-// 	}
+	group1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/group"
+	"github.com/gin-gonic/gin"
+)
 
-// 	com, err := h.serviceManager.CommentService().Create(ctx, &compb.Comment{
-// 		Description: comment.Description,
-// 		PostId:      comment.PostId,
-// 		OwnerId:     resp.Owner.Id,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to created comment", l.Error(err))
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, com)
-// }
+// CreateGroup godoc
+// @Router       /group [POST]
+// @Summary      Creates a new group
+// @Description  create a new group
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        group body models.CreateGroupRequest true "group"
+// @Success      201  {object}  models.Group
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) CreateGroup(c *gin.Context) {
+	var req group1.CreateGroupRequest
 
-// // GetComment ...
-// // @Summary GetComment
-// // @Security ApiKeyAuth
-// // @Tags comment
-// // @Accept json
-// // @Produce json
-// // @Param id query string true "ID"
-// // @Success 200 {object} models.Comment
-// // @Failure 400 {object} models.StandardErrorModel
-// // @Failure 500 {object} models.StandardErrorModel
-// // @Router /v1/get/comment [get]
-// func (h *handlerV1) GetComment(c *gin.Context) {
-// 	guid := c.Query("id")
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-// 	defer cancel()
-// 	com, err := h.serviceManager.CommentService().GetComment(ctx, &compb.Get{
-// 		Id: guid,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to query", l.Error(err))
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, com)
-// }
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleResponse(c, h.log, "error while decoding group data", http.StatusBadRequest, err.Error())
+		return
+	}
 
-// // GetAllComment gets user by id
-// // @Summary GetAllComment
-// // @Security ApiKeyAuth
-// // @Description Api for getting comments
-// // @Tags comment
-// // @Accept json
-// // @Produce json
-// // @Param page query string true "page"
-// // @Param limit query string true "limit"
-// // @Success 200 {object} models.Comment
-// // @Failure 400 {object} models.StandardErrorModel
-// // @Failure 500 {object} models.StandardErrorModel
-// // @Router /v1/comments/all [get]
-// func (h *handlerV1) GetAllComment(c *gin.Context) {
-// 	page := c.Query("page")
-// 	limit := c.Query("limit")
+	createdGroup, err := h.serviceManager.GroupService().CreateGroup(context.Background(), &req)
+	if err != nil {
+		handleResponse(c, h.log, "error while creating group", http.StatusInternalServerError, err.Error())
+		return
+	}
 
-// 	reqPage, err := strconv.Atoi(page)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("page error", l.Error(err))
-// 		return
-// 	}
-// 	reqLimit, err := strconv.Atoi(limit)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("limit error", l.Error(err))
-// 		return
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-// 	defer cancel()
-// 	rows, err := h.serviceManager.CommentService().GetAllComment(ctx, &compb.GetRequest{
-// 		Page:  int64(reqPage),
-// 		Limit: int64(reqLimit),
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to page or limit", l.Error(err))
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, rows)
-// }
+	handleResponse(c, h.log, "successfully created group", http.StatusCreated, createdGroup)
+}
 
-// // UpdateComment ...
-// // @Summary UpdateComment
-// // @Security ApiKeyAuth
-// // @Description Api for updating comment
-// // @Tags comment
-// // @Accept json
-// // @Produce json
-// // @Param User body models.Comment true "create comment"
-// // @Success 200 {object} models.Comment
-// // @Failure 400 {object} models.StandardErrorModel
-// // @Failure 500 {object} models.StandardErrorModel
-// // @Router /v1/update/comment [put]
-// func (h *handlerV1) UpdateComment(c *gin.Context) {
-// 	var comment models.Comment
-// 	err := c.ShouldBindJSON(&comment)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to bind json", l.Error(err))
-// 		return
-// 	}
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-// 	defer cancel()
-// 	resp, err := h.serviceManager.PostService().GetPost(ctx, &pb.GetRequests{
-// 		PostId: comment.PostId,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to post id", l.Error(err))
-// 		return
-// 	}
-// 	com, err := h.serviceManager.CommentService().UpdateComment(ctx, &compb.Comment{
-// 		Id:          comment.Id,
-// 		Description: comment.Description,
-// 		PostId:      comment.PostId,
-// 		OwnerId:     resp.Owner.Id,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to created comment", l.Error(err))
-// 		return
-// 	}
-// 	fmt.Println(com.CreatedAt)
-// 	c.JSON(http.StatusOK, com)
-// }
+// GetGroupByID godoc
+// @Router       /group/{id} [GET]
+// @Summary      Get group by id
+// @Description  Get group by id
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "group_id"
+// @Success      200  {object}  models.Group
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) GetGroupByID(c *gin.Context) {
+	id := c.Param("id")
 
-// // DeleteComment ...
-// // @Summary DeleteComment
-// // @Security ApiKeyAuth
-// // @Tags comment
-// // @Accept json
-// // @Produce json
-// // @Param post_id query string true "PostID"
-// // @Param id query string true "ID"
-// // @Success 200 {object} models.Comment
-// // @Failure 400 {object} models.StandardErrorModel
-// // @Failure 500 {object} models.StandardErrorModel
-// // @Router /v1/delete/comment [delete]
-// func (h *handlerV1) DeleteComment(c *gin.Context) {
-// 	guid := c.Query("id")
-// 	post_id := c.Query("post_id")
-// 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(h.cfg.CtxTimeout))
-// 	defer cancel()
+	group, err := h.serviceManager.GroupService().GetAllResourceTypes(context.Background(), &group1.GetAllServiceRequest{
+		Field: "id",
+		Value: id,
+	})
+	if err != nil {
+		handleResponse(c, h.log, "error while get group by id", http.StatusInternalServerError, err.Error())
+		return
+	}
 
-// 	_, err := h.serviceManager.PostService().GetPost(ctx, &pb.GetRequests{
-// 		PostId: post_id,
-// 	})
+	handleResponse(c, h.log, "successfully", http.StatusOK, group)
+}
 
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to query", l.Error(err))
-// 		return
-// 	}
+// GetAllGroups godoc
+// @Router       /groups [GET]
+// @Summary      Get groups list
+// @Description  Get groups list
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        page query string false "page"
+// @Param        limit query string false "limit"
+// @Param        field query string false "field"
+// @Param        value query string false "value"
+// @Param        sort_by query string false "sort_by"
+// @Param        start_at query string false "start_at"
+// @Param        end_at query string false "end_at"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) GetAllGroups(c *gin.Context) {
+	page, _ := strconv.ParseUint(c.DefaultQuery("page", "1"), 10, 64)
+	limit, _ := strconv.ParseUint(c.DefaultQuery("limit", "100"), 10, 64)
+	field := c.Query("field")
+	value := c.Query("value")
+	sort_by := c.Query("sort_by")
+	start_at := c.Query("start_at")
+	end_at := c.Query("end_at")
 
-// 	s, err := h.serviceManager.CommentService().DeleteComment(ctx, &compb.Get{
-// 		Id: guid,
-// 	})
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{
-// 			"error": err.Error(),
-// 		})
-// 		h.log.Error("failed to query", l.Error(err))
-// 		return
-// 	}
-// 	c.JSON(http.StatusOK, s)
-// }
+	response, err := h.serviceManager.GroupService().GetAllResourceTypes(context.Background(), &group1.GetAllServiceRequest{
+		Field:   field,
+		Value:   value,
+		SordBy:  sort_by,
+		StartAt: start_at,
+		EndAt:   end_at,
+		Page:    page,
+		Limit:   limit,
+	})
+	if err != nil {
+		handleResponse(c, h.log, "error while get groups list", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "", http.StatusOK, response)
+}
+
+// UpdateGroup godoc
+// @Router       /group/{id} [PUT]
+// @Summary      Update group data
+// @Description  Update group data
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "group_id"
+// @Param        group body models.UpdateGroupRequest true "group"
+// @Success      200  {object}  models.Group
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) UpdateGroup(c *gin.Context) {
+	id := c.Param("id")
+
+	var req group1.UpdateGroupRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleResponse(c, h.log, "error while decoding group data", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	req.GroupId = id
+	group, err := h.serviceManager.GroupService().UpdateGroup(context.Background(), &req)
+	if err != nil {
+		handleResponse(c, h.log, "error while updating group data", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "group data successfully updated", http.StatusOK, group)
+}
+
+// DeleteGroup godoc
+// @Router       /group/{id} [DELETE]
+// @Summary      Delete group
+// @Description  Delete group
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "group_id"
+// @Success      200  {object}  models.Response
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) DeleteGroup(c *gin.Context) {
+	id := c.Param("id")
+
+	msg, err := h.serviceManager.GroupService().DeleteGroup(context.Background(), &group1.DeleteGroupRequest{
+		GroupId: id,
+	})
+	if err != nil {
+		handleResponse(c, h.log, "error while deleting group", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "group successfully deleted", http.StatusOK, msg)
+}
+
+// AddGroupSoldiers godoc
+// @Router       /group/{id}/soldiers [POST]
+// @Summary      Add soldiers to group
+// @Description  Add soldiers to group
+// @Tags         group
+// @Accept       json
+// @Produce      json
+// @Param        id path string true "group_id"
+// @Param        soldiers body models.AddGroupSoldersRequest true "soldiers"
+// @Success      200  {object}  models.AddGroupSoldersResponse
+// @Failure      400  {object}  models.Response
+// @Failure      404  {object}  models.Response
+// @Failure      500  {object}  models.Response
+func (h *handlerV1) AddGroupSoldiers(c *gin.Context) {
+	id := c.Param("id")
+
+	var req group1.AddGroupSoldersRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		handleResponse(c, h.log, "error while decoding soldiers data", http.StatusBadRequest, err.Error())
+		return
+	}
+
+	req.GroupId = id
+	response, err := h.serviceManager.GroupService().AddGroupSolders(context.Background(), &req)
+	if err != nil {
+		handleResponse(c, h.log, "error while adding soldiers to group", http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	handleResponse(c, h.log, "soldiers successfully added to group", http.StatusOK, response)
+}

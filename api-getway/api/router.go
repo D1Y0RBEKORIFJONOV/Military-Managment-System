@@ -2,7 +2,6 @@ package api
 
 import (
 	_ "api_service/api/docs"
-	casbinC "api_service/api/handlers/middleware/casbin"
 	v1 "api_service/api/handlers/v1"
 	token "api_service/api/tokens"
 	"api_service/config"
@@ -25,7 +24,7 @@ type Option struct {
 
 // @title welcome to
 // @version 1.7
-// @host localhost:1212
+// @host localhost:9999
 
 // @securityDefinitions.apikey ApiKeyAuth
 // @in header
@@ -47,13 +46,25 @@ func New(option Option) *gin.Engine {
 		Jwthandler:     jwtHandler,
 	})
 
-	router.Use(casbinC.NewAuthorizer())
+	// router.Use(casbinC.NewAuthorizer())
 	api := router.Group("/v1")
 
 	// Authorization
-	api.POST("/Verification", handlerV1.Verification)
+	api.POST("/verification", handlerV1.Verification)
 	api.POST("/register", handlerV1.Register)
 	api.POST("/login", handlerV1.LogIn)
+
+	api.POST("/soldier", handlerV1.CreateSoldier)
+	api.GET("/soldiers", handlerV1.GetAllSoldiers)
+	api.GET("/soldier/{id}", handlerV1.GetSoldierByID)
+	api.PUT("/soldier/{id} ", handlerV1.UpdateSoldier)
+	api.DELETE("/soldier/{id}", handlerV1.DeleteSoldier)
+
+	api.POST("/storehouse", handlerV1.CreateStorehouse)
+	api.GET("/storehouses", handlerV1.GetAllStorehouses)
+	api.GET("/storehouse/{id}", handlerV1.GetStorehouseByID)
+	api.PUT("/storehouse/{id} ", handlerV1.UpdateStorehouse)
+	api.DELETE("/storehouse/{id}", handlerV1.DeleteStorehouse)
 
 	url := ginSwagger.URL("swagger/doc.json")
 

@@ -1,14 +1,12 @@
 package models
 
-import "time"
-
 type Group struct {
-	Id        string    `json:"id"`
-	GroupName string    `json:"group_name"`
-	Size      int64     `json:"size"`
-	SizeLimit int64     `json:"size_limit"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Id        string `json:"id"`
+	GroupName string `json:"group_name"`
+	Size      int64  `json:"size"`
+	SizeLimit int64  `json:"size_limit"`
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 type CreateGroupRequest struct {
 	GroupName string `json:"group_name"`

@@ -23,9 +23,6 @@ type Config struct {
 	LogLevel string
 	HTTPPort string
 
-	AuthConfigPatch string
-	CSVFile         string
-
 	SignInKey         string
 	AccessTokenTimout int
 }
@@ -49,9 +46,6 @@ func Load() Config {
 
 	c.SoldierServiceHost = cast.ToString(getOrReturnDefault("SOLDIER_SERVICE_HOST", "localhost"))
 	c.SoldierServicePort = cast.ToInt(getOrReturnDefault("SOLDIER_SERVICE_PORT", 9000))
-
-	c.AuthConfigPatch = cast.ToString(getOrReturnDefault("AUTH_CONFIG_PATCH", "auth.conf"))
-	c.CSVFile = cast.ToString(getOrReturnDefault("CSV_FILE_PATCH", "auth.csv"))
 
 	c.CtxTimeout = cast.ToInt(getOrReturnDefault("CTX_TIMEOUT", 7))
 

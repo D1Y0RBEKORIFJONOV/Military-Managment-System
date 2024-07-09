@@ -1,46 +1,41 @@
 definitions:
-  models.AdminPost:
+  models.CreateSoldier:
     properties:
-      category:
+      birthday:
         type: string
-      content:
+      email:
         type: string
-      id:
+      fname:
         type: string
-      image-url:
+      l_name:
         type: string
-      owner_id:
-        type: string
-      title:
+      pasword:
         type: string
     type: object
-  models.Comment:
+  models.CreateStorehouseReq:
     properties:
-      description:
+      amount:
+        type: integer
+      name:
         type: string
-      id:
-        type: string
-      postId:
+      price:
+        type: number
+      type_artillery:
         type: string
     type: object
-  models.Error:
+  models.GetAllStorehouseRes:
     properties:
-      message:
-        type: string
-    type: object
-  models.Post:
-    properties:
-      category:
-        type: string
-      content:
-        type: string
-      image-url:
-        type: string
-      title:
-        type: string
+      count:
+        type: integer
+      storehouses:
+        items:
+          $ref: '#/definitions/models.Storehouse'
+        type: array
     type: object
   models.RegisterModel:
     properties:
+      birht_day:
+        type: string
       email:
         type: string
       first_name:
@@ -49,12 +44,12 @@ definitions:
         type: string
       password:
         type: string
-      username:
-        type: string
     type: object
   models.RegisterResponse:
     properties:
       access_token:
+        type: string
+      birht_day:
         type: string
       email:
         type: string
@@ -70,106 +65,137 @@ definitions:
         type: string
       role:
         type: string
-      username:
+    type: object
+  models.Response:
+    properties:
+      data: {}
+      description:
         type: string
+      statusCode:
+        type: integer
     type: object
-  models.StandardErrorModel:
+  models.Soldier:
     properties:
-      error:
-        $ref: '#/definitions/models.Error'
-    type: object
-  models.User:
-    properties:
+      age:
+        type: integer
+      birthday:
+        type: string
+      created_at:
+        type: string
+      deleted_at:
+        type: string
       email:
         type: string
-      first_name:
+      fname:
         type: string
-      last_name:
+      id:
+        type: string
+      joined_at:
+        type: string
+      l_name:
+        type: string
+      pasword:
+        type: string
+      role:
+        type: string
+      term:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.Storehouse:
+    properties:
+      amount:
+        type: integer
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      type_artillery:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  models.UpdateSoldier:
+    properties:
+      birthday:
+        type: string
+      fname:
+        type: string
+      id:
+        type: string
+      lname:
         type: string
       password:
         type: string
-      username:
+    type: object
+  models.UpdateStorehouseReq:
+    properties:
+      amount:
+        type: integer
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      type_artillery:
         type: string
     type: object
-host: localhost:1212
+host: localhost:9999
 info:
   contact: {}
   title: welcome to
   version: "1.7"
 paths:
-  /v1/Verification/:
+  /soldier:
     post:
       consumes:
       - application/json
-      description: Verification - Api for registering users
+      description: create a new soldier
       parameters:
-      - description: Code
-        in: query
-        name: code
-        required: true
-        type: integer
-      - description: Email
-        in: query
-        name: email
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.RegisterModel'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      summary: Verification
-      tags:
-      - Register
-  /v1/admin/create/post/:
-    post:
-      consumes:
-      - application/json
-      description: Api for creating a new post
-      parameters:
-      - description: Create post
+      - description: soldier
         in: body
-        name: Post
+        name: soldier
         required: true
         schema:
-          $ref: '#/definitions/models.AdminPost'
+          $ref: '#/definitions/models.CreateSoldier'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/models.AdminPost'
+            $ref: '#/definitions/models.Soldier'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: AdminCreatePost
+            $ref: '#/definitions/models.Response'
+      summary: Creates a new soldier
       tags:
-      - admin
-  /v1/admin/delete/comment:
+      - soldier
+  /soldier/{id}:
     delete:
       consumes:
       - application/json
+      description: Delete soldier
       parameters:
-      - description: ID
-        in: query
+      - description: soldier_id
+        in: path
         name: id
         required: true
         type: string
@@ -179,135 +205,128 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/models.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: AdminDeleteComment
+            $ref: '#/definitions/models.Response'
+      summary: Delete soldier
       tags:
-      - admin
-  /v1/admin/delete/user:
-    delete:
-      consumes:
-      - application/json
-      description: Api for deleting user by id
-      parameters:
-      - description: ID
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: AdminDeleteUser
-      tags:
-      - admin
-  /v1/admin/update/post/:
-    put:
-      consumes:
-      - application/json
-      description: Api for creating a new post
-      parameters:
-      - description: update post
-        in: body
-        name: Post
-        required: true
-        schema:
-          $ref: '#/definitions/models.AdminPost'
-      - description: id
-        in: query
-        name: post_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.AdminPost'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: AdminUpdatePost
-      tags:
-      - admin
-  /v1/admin/update/user/:
-    put:
-      consumes:
-      - application/json
-      description: Api for updating user
-      parameters:
-      - description: createUserModel
-        in: body
-        name: User
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: AdminUpdateUser
-      tags:
-      - admin
-  /v1/comments/all:
+      - soldier
     get:
       consumes:
       - application/json
-      description: Api for getting comments
+      description: Get soldier by id
+      parameters:
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Soldier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Get soldier by id
+      tags:
+      - soldier
+    put:
+      consumes:
+      - application/json
+      description: Update soldier data
+      parameters:
+      - description: soldier_id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: soldier
+        in: body
+        name: soldier
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateSoldier'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Soldier'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Update soldier data
+      tags:
+      - soldier
+  /soldiers:
+    get:
+      consumes:
+      - application/json
+      description: Get soldiers list
       parameters:
       - description: page
         in: query
         name: page
-        required: true
         type: string
       - description: limit
         in: query
         name: limit
-        required: true
+        type: string
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      - description: sort_by
+        in: query
+        name: sort_by
+        type: string
+      - description: started_at
+        in: query
+        name: started_at
+        type: string
+      - description: ended_at
+        in: query
+        name: ended_at
         type: string
       produces:
       - application/json
@@ -315,96 +334,64 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/models.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetAllComment
+            $ref: '#/definitions/models.Response'
+      summary: Get soldiers list
       tags:
-      - comment
-  /v1/create/comment:
+      - soldier
+  /storehouse:
     post:
       consumes:
       - application/json
-      description: Api for creating a new comment
+      description: create a new storehouse
       parameters:
-      - description: create comment
+      - description: storehouse
         in: body
-        name: User
+        name: storehouse
         required: true
         schema:
-          $ref: '#/definitions/models.Comment'
+          $ref: '#/definitions/models.CreateStorehouseReq'
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/models.Storehouse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: CreateComment
+            $ref: '#/definitions/models.Response'
+      summary: Creates a new storehouse
       tags:
-      - comment
-  /v1/create/post/:
-    post:
-      consumes:
-      - application/json
-      description: Api for creating a new post
-      parameters:
-      - description: create post
-        in: body
-        name: Post
-        required: true
-        schema:
-          $ref: '#/definitions/models.Post'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Post'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: CreatePost
-      tags:
-      - post
-  /v1/delete/comment:
+      - storehouse
+  /storehouse/{id}:
     delete:
       consumes:
       - application/json
+      description: Delete storehouse
       parameters:
-      - description: PostID
-        in: query
-        name: post_id
-        required: true
-        type: string
-      - description: ID
-        in: query
+      - description: storehouse_id
+        in: path
         name: id
         required: true
         type: string
@@ -414,60 +401,34 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/models.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: DeleteComment
+            $ref: '#/definitions/models.Response'
+      summary: Delete storehouse
       tags:
-      - comment
-  /v1/delete/post:
-    delete:
-      consumes:
-      - application/json
-      description: Api for deleting post
-      parameters:
-      - description: id
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Post'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: DeletePost
-      tags:
-      - post
-  /v1/get/comment:
+      - storehouse
     get:
       consumes:
       - application/json
+      description: Get storehouse by id
       parameters:
-      - description: ID
+      - description: field
         in: query
-        name: id
-        required: true
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
         type: string
       produces:
       - application/json
@@ -475,30 +436,93 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Comment'
+            $ref: '#/definitions/models.Storehouse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetComment
+            $ref: '#/definitions/models.Response'
+      summary: Get storehouse by id
       tags:
-      - comment
-  /v1/get/post/:
+      - storehouse
+    put:
+      consumes:
+      - application/json
+      description: Update storehouse data
+      parameters:
+      - description: storehouse_id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: storehouse
+        in: body
+        name: storehouse
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateStorehouseReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.Response'
+      summary: Update storehouse data
+      tags:
+      - storehouse
+  /storehouses:
     get:
       consumes:
       - application/json
-      description: Api for get post
+      description: Get storehouses list
       parameters:
-      - description: Id
+      - description: page
         in: query
-        name: id
-        required: true
+        name: page
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: field
+        in: query
+        name: field
+        type: string
+      - description: value
+        in: query
+        name: value
+        type: string
+      - description: sort_by
+        in: query
+        name: sort_by
+        type: string
+      - description: started_at
+        in: query
+        name: started_at
+        type: string
+      - description: ended_at
+        in: query
+        name: ended_at
         type: string
       produces:
       - application/json
@@ -506,45 +530,22 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Post'
+            $ref: '#/definitions/models.GetAllStorehouseRes'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetPost
+            $ref: '#/definitions/models.Response'
+      summary: Get storehouses list
       tags:
-      - post
-  /v1/get/user:
-    get:
-      consumes:
-      - application/json
-      description: Api for getting user by id
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetUser
-      tags:
-      - user
+      - storehouse
   /v1/login/:
     post:
       consumes:
@@ -571,50 +572,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
       summary: LogIn
       tags:
       - Register
-  /v1/posts/all:
-    get:
-      consumes:
-      - application/json
-      description: Api for getting posts
-      parameters:
-      - description: page
-        in: query
-        name: page
-        required: true
-        type: integer
-      - description: limit
-        in: query
-        name: limit
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Post'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetAllPosts
-      tags:
-      - post
   /v1/register/:
     post:
       consumes:
@@ -637,61 +602,28 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
       summary: Register
       tags:
       - Register
-  /v1/update/comment:
-    put:
+  /v1/verification/:
+    post:
       consumes:
       - application/json
-      description: Api for updating comment
+      description: Verification - Api for registering users
       parameters:
-      - description: create comment
-        in: body
-        name: User
-        required: true
-        schema:
-          $ref: '#/definitions/models.Comment'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.Comment'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: UpdateComment
-      tags:
-      - comment
-  /v1/update/post/:
-    put:
-      consumes:
-      - application/json
-      description: Api for updating post
-      parameters:
-      - description: update post
-        in: body
-        name: Post
-        required: true
-        schema:
-          $ref: '#/definitions/models.Post'
-      - description: id
+      - description: Code
         in: query
-        name: post_id
+        name: code
+        required: true
+        type: integer
+      - description: Email
+        in: query
+        name: email
         required: true
         type: string
       produces:
@@ -700,109 +632,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Post'
+            $ref: '#/definitions/models.RegisterModel'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
+            $ref: '#/definitions/models.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: UpdatePost
+            $ref: '#/definitions/models.Response'
+      summary: Verification
       tags:
-      - post
-  /v1/update/user:
-    put:
-      consumes:
-      - application/json
-      description: Api for updating user
-      parameters:
-      - description: createUserModel
-        in: body
-        name: User
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: UpdateUser
-      tags:
-      - user
-  /v1/users/:
-    post:
-      consumes:
-      - application/json
-      description: Api for creating a new user
-      parameters:
-      - description: createUserModel
-        in: body
-        name: User
-        required: true
-        schema:
-          $ref: '#/definitions/models.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: Create
-      tags:
-      - user
-  /v1/users/all:
-    get:
-      consumes:
-      - application/json
-      description: Api for getting users
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.StandardErrorModel'
-      security:
-      - ApiKeyAuth: []
-      summary: GetAllUsers
-      tags:
-      - user
+      - Register
 securityDefinitions:
   ApiKeyAuth:
     in: header

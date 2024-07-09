@@ -1,10 +1,11 @@
 package token
 
 import (
-	"api-test/pkg/logger"
+	"api_service/pkg/logger"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 // JWTHandler ...

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"api-test/api"
-	"api-test/config"
-	"api-test/pkg/logger"
-	"api-test/service"
+	"api_service/api"
+	"api_service/config"
+	"api_service/pkg/logger"
+	"api_service/service"
+
 	"github.com/casbin/casbin/v2"
 )
 

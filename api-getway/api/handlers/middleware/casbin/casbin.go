@@ -1,13 +1,13 @@
 package casbin
 
 import (
-	"api-test/api/tokens"
-	jwt "api-test/api/tokens"
-	"api-test/config"
+	token "api_service/api/tokens"
+	"api_service/config"
 	"fmt"
+	"net/http"
+
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type CasbinHandler struct {
@@ -32,7 +32,7 @@ func NewAuthorizer() gin.HandlerFunc {
 			}
 		}
 
-		claims, err := jwt.ExtractClaim(token1, []byte(config.Load().SignInKey))
+		claims, err := token.ExtractClaim(token1, []byte(config.Load().SignInKey))
 		fmt.Println(err)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{

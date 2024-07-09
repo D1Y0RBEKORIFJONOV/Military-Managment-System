@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"api_service/api/handlers/models"
-
 	soldiers1 "github.com/D1Y0RBEKORIFJONOV/Milltary-Managment-System-protos/gen/go/soldiers"
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +29,7 @@ func (h *handlerV1) CreateSoldier(c *gin.Context) {
 		return
 	}
 
-	createdSoldier, err := h.serviceManager.SoldierService().CreateSoldiers(context.Background(), soldier)
+	createdSoldier, err := h.serviceManager.SoldierService().CreateSoldiers(context.Background(), &createSoldier)
 	if err != nil {
 		handleResponse(c, h.log, "error while creating soldier", http.StatusInternalServerError, err.Error())
 		return
@@ -47,15 +45,20 @@ func (h *handlerV1) CreateSoldier(c *gin.Context) {
 // @Tags         soldier
 // @Accept       json
 // @Produce      json
-// @Param        id path string true "soldier_id"
+// @Param        field query string false "field"
+// @Param        value query string false "value"
 // @Success      200  {object}  models.Soldier
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
 func (h *handlerV1) GetSoldierByID(c *gin.Context) {
-	id := c.Param("id")
+	field := c.Query("field")
+	value := c.Query("value")
 
-	soldier, err := h.service.Soldier().GetByID(context.Background(), id)
+	soldier, err := h.serviceManager.SoldierService().GetSoldier(context.Background(), &soldiers1.GetSoldierReq{
+		Filed: field,
+		Value: value,
+	})
 	if err != nil {
 		handleResponse(c, h.log, "error while get soldier by id", http.StatusInternalServerError, err.Error())
 		return
@@ -78,7 +81,7 @@ func (h *handlerV1) GetSoldierByID(c *gin.Context) {
 // @Param        sort_by query string false "sort_by"
 // @Param        started_at query string false "started_at"
 // @Param        ended_at query string false "ended_at"
-// @Success      200  {object}  models.SoldiersResponse
+// @Success      200  {object}  models.Response
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
@@ -117,36 +120,40 @@ func (h *handlerV1) GetAllSoldiers(c *gin.Context) {
 // @Produce      json
 // @Param        id path string true "soldier_id"
 // @Param        soldier body models.UpdateSoldier true "soldier"
-// @Success      200  {object}  models.Response
+// @Success      200  {object}  models.Soldier
 // @Failure      400  {object}  models.Response
 // @Failure      404  {object}  models.Response
 // @Failure      500  {object}  models.Response
 func (h *handlerV1) UpdateSoldier(c *gin.Context) {
-	var (
-		err           error
-		updateSoldier = models.UpdateSoldier{}
-	)
-
 	id := c.Param("id")
 
+	soldiers, err := h.serviceManager.SoldierService().GetSoldier(context.Background(), &soldiers1.GetSoldierReq{
+		Filed: "id",
+		Value: id,
+	})
+	if err != nil {
+		handleResponse(c, h.log, "error while get soldier by id", http.StatusInternalServerError, err.Error())
+		return
+	}
+	var updateSoldier = soldiers1.UpdateSoldierReq{
+		FnName:    soldiers.FnName,
+		LnName:    soldiers.LnName,
+		Password:  soldiers.Password,
+		BirthDay:  soldiers.BirhtDay,
+		SoldersId: soldiers.Id,
+	}
 	if err := c.ShouldBindJSON(&updateSoldier); err != nil {
 		handleResponse(c, h.log, "error while decoding soldier data", http.StatusBadRequest, err.Error())
 		return
 	}
 
-	if err = h.service.Soldier().Update(context.Background(), models.UpdateSoldier{
-		ID:        id,
-		Name:      updateSoldier.Name,
-		Rank:      updateSoldier.Rank,
-		Unit:      updateSoldier.Unit,
-		CreatedAt: "",
-		UpdatedAt: "",
-	}); err != nil {
+	sldr, err := h.serviceManager.SoldierService().UpdateSoldier(context.Background(), &updateSoldier)
+	if err != nil {
 		handleResponse(c, h.log, "error while updating soldier data", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, h.log, "", http.StatusOK, "soldier data successfully updated")
+	handleResponse(c, h.log, "soldier data successfully updated", http.StatusOK, sldr)
 }
 
 // DeleteSoldier godoc
@@ -165,13 +172,17 @@ func (h *handlerV1) DeleteSoldier(c *gin.Context) {
 	var (
 		err error
 	)
-
 	id := c.Param("id")
+	ishard, _ := strconv.ParseBool((c.Query("ishard")))
 
-	if err = h.service.Soldier().Delete(context.Background(), id); err != nil {
+	status, err := h.serviceManager.SoldierService().DeleteSoldier(context.Background(), &soldiers1.DeleteSoldierReq{
+		SoldersId:    id,
+		IsHardDelete: ishard,
+	})
+	if err != nil {
 		handleResponse(c, h.log, "error while deleting soldier", http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	handleResponse(c, h.log, "", http.StatusOK, "soldier successfully deleted")
+	handleResponse(c, h.log, "soldier successfully deleted", http.StatusOK, status)
 }
