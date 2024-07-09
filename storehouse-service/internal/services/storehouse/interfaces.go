@@ -6,17 +6,17 @@ import (
 )
 
 type (
-	StorehouseProvider interface {
-		GetStorehouse(ctx context.Context, req *entity.GetStorehouseReq) (*entity.Storehouse, error)
-		GetAllStorehouse(ctx context.Context, req *entity.GetAllStorehouseReq) (*entity.GetAllStorehouseRes, error)
+	ResourceUsageProvider interface {
+		GetResourceUsage(ctx context.Context, req *entity.GetResourceUsageReq) (*entity.ResourceUsage, error)
+		GetAllResourceUsage(ctx context.Context, req *entity.GetAllResourceUsageReq) (*entity.GetAllResourceUsageRes, error)
 	}
-	StorehouseCreater interface {
-		CreateStorehouse(ctx context.Context, req *entity.CreateStorehouseReq) (*entity.Storehouse, error)
+	ResourceUsageCreater interface {
+		CreateResourceUsage(ctx context.Context, req *entity.CreateResourceUsageReq) (*entity.ResourceUsage, error)
 	}
-	StorehouseUpdater interface {
-		UpdateStorehouse(ctx context.Context, req *entity.UpdateStorehouseReq) (*entity.Storehouse, error)
+	ResourceUsageUpdater interface {
+		UpdateResourceUsage(ctx context.Context, req *entity.UpdateResourceUsageReq) (*entity.ResourceUsage, error)
 	}
-	StorehouseDeleter interface {
-		DeleteStorehouse(ctx context.Context, req *entity.DeleteStorehouseReq) (*entity.Status, error)
+	ResourceUsageDeleter interface {
+		DeleteResourceUsage(ctx context.Context, req *entity.DeleteResourceUsageReq) (*entity.Status, error)
 	}
 )
